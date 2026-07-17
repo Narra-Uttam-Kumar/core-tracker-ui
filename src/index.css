@@ -1,0 +1,72 @@
+:root {
+  --bg-main: #09090b;
+  --bg-card: #121215;
+  --bg-nested: #18181c;
+  --border-glow: #1f1f24;
+  --accent-primary: #4f46e5;
+  --accent-glow: rgba(79, 70, 229, 0.4);
+  --text-primary: #f4f4f5;
+  --text-muted: #71717a;
+}
+
+body {
+  margin: 0;
+  background-color: var(--bg-main);
+  color: var(--text-primary);
+  font-family: 'Inter', sans-serif;
+  letter-spacing: -0.01em;
+  overflow-x: hidden;
+}
+
+h1, h2, h3, h4, .font-heading {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+}
+
+.font-code {
+  font-family: 'JetBrains Mono', monospace;
+}
+
+/* Glassmorphism Navigation & Surfaces */
+.glass-panel {
+  background: rgba(18, 18, 21, 0.8) !important;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.03) !important;
+}
+
+/* Premium Card Aesthetics */
+.custom-card {
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-glow);
+  border-radius: 14px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  transition: transform 0.2s ease, border-color 0.2s ease;
+}
+
+/* Custom Spacing Helpers */
+.gap-1.5 { gap: 0.375rem !important; }
+.gap-2.5 { gap: 0.625rem !important; }
+.gap-3.5 { gap: 0.875rem !important; }
+.py-2.5  { padding-top: 0.625rem !important; padding-bottom: 0.625rem !important; }
+
+/* Scrollbar Customization */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: var(--bg-main);
+}
+::-webkit-scrollbar-thumb {
+  background: #27272a;
+  border-radius: 10px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #3f3f46;
+}
+
+/* Input Overrides */
+.focus-none:focus {
+  border-color: var(--accent-primary) !important;
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.25) !important;
+}
