@@ -1,7 +1,7 @@
 // src/services/api.ts
 import type { HabitsData } from '../types';
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "https://core-tracker-api-tyf8.onrender.com";
 const API_PREFIX = '/api'; // Change to '' if your backend doesn't use /api
 
 export const fetchHabits = async (token: string): Promise<HabitsData> => {
