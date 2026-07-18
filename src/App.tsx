@@ -7,7 +7,7 @@ import PlanView from './components/PlanView';
 import HabitGridView from './components/HabitGridView';
 import type { HabitKey, ViewType, AuthMode, HabitsData } from './types';
 
-const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:8080/api';
+const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080/api';
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
 const INITIAL_HABITS_STATE = (): HabitsData => ({
@@ -139,7 +139,6 @@ export default function App() {
         {currentView === 'dashboard' && <DashboardView habitsData={habitsData} />}
         {currentView === 'tracker-sheet' && <HabitSheetView habitsData={habitsData} toggleDay={toggleDay} />}
         
-        {/* FIXED: Removed getHabitColorClass to perfectly match PlanView's updated prop types */}
         {currentView === '12-month' && <PlanView habitsData={habitsData} toggleDay={toggleDay} />}
         
         {!['dashboard', 'tracker-sheet', '12-month'].includes(currentView) && (
