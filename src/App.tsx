@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import Header from './components/Header';
 import AuthPortal from './components/AuthPortal';
 import DashboardView from './components/DashboardView';
@@ -30,12 +30,6 @@ export default function App() {
     setToken(null);
     setHabitsData(INITIAL_HABITS_STATE());
     setCurrentView('tracker-sheet');
-  }, []);
-
-  const getHabitColorClass = useCallback((_habitKey: HabitKey, isCompleted: boolean): string => {
-    return isCompleted 
-      ? 'bg-primary text-white border-primary shadow-sm' 
-      : 'bg-transparent border border-zinc-800 text-zinc-500';
   }, []);
 
   useEffect(() => {
@@ -111,7 +105,6 @@ export default function App() {
             currentView={currentView as HabitKey}
             habitData={habitsData[currentView as HabitKey] || Array(365).fill(false)}
             toggleDay={toggleDay}
-            getHabitColorClass={getHabitColorClass}
             months={MONTHS}
           />
         )}

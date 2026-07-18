@@ -1,5 +1,4 @@
-import React from 'react';
-import type { ViewType, HabitKey } from '../types';
+ import type { ViewType, HabitKey } from '../types';
 
 interface HeaderProps {
   readonly currentView: ViewType;

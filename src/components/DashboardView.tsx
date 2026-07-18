@@ -1,5 +1,4 @@
-import React from 'react';
-import type { HabitsData } from '../types';
+ import type { HabitsData } from '../types';
 
 interface DashboardProps {
   readonly habitsData: HabitsData;
