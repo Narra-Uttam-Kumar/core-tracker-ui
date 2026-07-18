@@ -8,7 +8,9 @@ import HabitGridView from './components/HabitGridView';
 import { fetchHabits, toggleHabit } from './utils/api';
 import type { HabitKey, ViewType, AuthMode, HabitsData } from './types';
 
-const API_BASE_URL = 'https://core-tracker-api-tyf8.onrender.com';
+// This will automatically pick up .env.local during development
+// and Vercel environment variables during production
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080';
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
 const INITIAL_HABITS_STATE = (): HabitsData => ({
