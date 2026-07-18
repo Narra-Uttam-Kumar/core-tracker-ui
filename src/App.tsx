@@ -8,8 +8,6 @@ import HabitGridView from './components/HabitGridView';
 import { fetchHabits, toggleHabit } from './utils/api';
 import type { HabitKey, ViewType, AuthMode, HabitsData } from './types';
 
-// This will automatically pick up .env.local during development
-// and Vercel environment variables during production
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "https://core-tracker-api-tyf8.onrender.com/api";
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
@@ -43,7 +41,6 @@ export default function App() {
         const data = await fetchHabits(token);
         if (active) setHabitsData(data);
       } catch (err: unknown) {
-        console.error("Fetch Error:", err);
         if (err instanceof Error && err.message === 'Unauthorized') handleLogout();
       }
     };
@@ -53,44 +50,55 @@ export default function App() {
 
   const handleAuthSubmit = async (mode: AuthMode, username: string, password: string) => {
     const endpoint = mode === 'login' ? '/auth/login' : '/auth/register';
+    
     try {
       const response = await fetch(`${API_BASE_URL}${endpoint}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username, password })
       });
+
+      // Handle non-JSON error responses (405, 404, 500)
+      if (!response.ok) {
+        const text = await response.text();
+        console.error("Server Error:", text);
+        alert(`Request failed (Status ${response.status}). Please check your connection.`);
+        return;
+      }
+
       const data = await response.json();
-      if (response.ok) {
-        if (mode === 'login' && data.token) {
-          localStorage.setItem('auth_token', data.token);
-          setToken(data.token);
-        } else {
-          alert("Success! Please proceed to login.");
-        }
+      if (mode === 'login' && data.token) {
+        localStorage.setItem('auth_token', data.token);
+        setToken(data.token);
       } else {
-        alert(data.message || "Authentication error.");
+        alert("Success! Please proceed to login.");
       }
     } catch (err: unknown) {
       console.error("Network fault:", err);
-      alert("Network server communication fault.");
+      alert("Network server communication fault. Ensure backend is running.");
     }
   };
 
-  const toggleDay = useCallback(async (habitKey: HabitKey, index: number) => {
+const toggleDay = useCallback(async (habitKey: HabitKey, index: number) => {
+  setHabitsData(prev => ({
+    ...prev,
+    [habitKey]: prev[habitKey].map((val, idx) => idx === index ? !val : val)
+  }));
+
+  try {
+    if (token) await toggleHabit(token, habitKey, index + 1);
+  } catch (err: unknown) {
+    // 1. Log the error (Satisfies SonarQube)
+    // 2. 'err' is now used (Satisfies ESLint)
+    console.error("Toggle habit failed:", err);
+
+    // 3. Revert state
     setHabitsData(prev => ({
       ...prev,
       [habitKey]: prev[habitKey].map((val, idx) => idx === index ? !val : val)
     }));
-    try {
-      if (token) await toggleHabit(token, habitKey, index + 1);
-    } catch (err: unknown) {
-      console.error("Toggle error, reverting state:", err);
-      setHabitsData(prev => ({
-        ...prev,
-        [habitKey]: prev[habitKey].map((val, idx) => idx === index ? !val : val)
-      }));
-    }
-  }, [token]);
+  }
+}, [token]);
 
   if (!token) return <AuthPortal handleAuthSubmit={handleAuthSubmit} />;
 
@@ -101,7 +109,6 @@ export default function App() {
         {currentView === 'dashboard' && <DashboardView habitsData={habitsData} />}
         {currentView === 'tracker-sheet' && <HabitSheetView habitsData={habitsData} toggleDay={toggleDay} />}
         {currentView === '12-month' && <PlanView habitsData={habitsData} toggleDay={toggleDay} />}
-        
         {!['dashboard', 'tracker-sheet', '12-month'].includes(currentView) && (
           <HabitGridView 
             currentView={currentView as HabitKey}
