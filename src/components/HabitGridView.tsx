@@ -6,12 +6,20 @@ interface GridProps {
   readonly currentView: HabitKey;
   readonly habitData: boolean[];
   readonly toggleDay: (key: HabitKey, i: number) => Promise<void>;
+  readonly getHabitColorClass: (habitKey: HabitKey, isCompleted: boolean) => string;
   readonly months: string[];
 }
 
 const DAYS_PER_MONTH = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
 
-export default function HabitGridView({ currentView, habitData, toggleDay, months }: GridProps): React.ReactNode {
+export default function HabitGridView({ 
+  currentView, 
+  habitData, 
+  toggleDay, 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  getHabitColorClass, 
+  months 
+}: GridProps): React.ReactNode {
   return (
     <div className="custom-card p-3 w-100">
       <div className="border-bottom border-zinc-800 pb-3 mb-4">
