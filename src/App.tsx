@@ -5,24 +5,19 @@ import DashboardView from './components/DashboardView';
 import HabitSheetView from './components/HabitSheetView';
 import PlanView from './components/PlanView';
 import HabitGridView from './components/HabitGridView';
+import { fetchHabits, toggleHabit } from './utils/api';
 import type { HabitKey, ViewType, AuthMode, HabitsData } from './types';
 
-const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080/api';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080';
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
 const INITIAL_HABITS_STATE = (): HabitsData => ({
-  wakeup: Array(365).fill(false),
-  nosnooze: Array(365).fill(false),
-  water: Array(365).fill(false),
-  gym: Array(365).fill(false),
-  stretching: Array(365).fill(false),
-  read: Array(365).fill(false),
-  meditation: Array(365).fill(false),
-  study: Array(365).fill(false),
-  skincare: Array(365).fill(false),
-  socialmedia: Array(365).fill(false),
-  noalcohol: Array(365).fill(false),
-  expenses: Array(365).fill(false)
+  wakeup: Array(365).fill(false), nosnooze: Array(365).fill(false),
+  water: Array(365).fill(false), gym: Array(365).fill(false),
+  stretching: Array(365).fill(false), read: Array(365).fill(false),
+  meditation: Array(365).fill(false), study: Array(365).fill(false),
+  skincare: Array(365).fill(false), socialmedia: Array(365).fill(false),
+  noalcohol: Array(365).fill(false), expenses: Array(365).fill(false)
 });
 
 export default function App() {
@@ -37,60 +32,50 @@ export default function App() {
     setCurrentView('tracker-sheet');
   }, []);
 
+  const getHabitColorClass = useCallback((_habitKey: HabitKey, isCompleted: boolean): string => {
+    return isCompleted 
+      ? 'bg-primary text-white border-primary shadow-sm' 
+      : 'bg-transparent border border-zinc-800 text-zinc-500';
+  }, []);
+
   useEffect(() => {
     let active = true;
     if (!token) return;
 
-    const fetchHabitsData = async () => {
+    const loadData = async () => {
       try {
-        const response = await fetch(`${API_BASE}/habits`, {
-          headers: { 'Authorization': `Bearer ${token}` }
-        });
-        if (!active) return;
-        
-        if (response.status === 429) {
-          alert("Rate limit exceeded. Slow down your requests.");
-          return;
-        }
-
-        if (response.ok) {
-          const data: HabitsData = await response.json();
-          setHabitsData(data);
-        } else if (response.status === 401) {
-          handleLogout();
-        }
-      } catch (err) {
-        console.error("Failed to connect to core backend:", err);
+        const data = await fetchHabits(token);
+        if (active) setHabitsData(data);
+      } catch (err: unknown) {
+        console.error("Fetch Error:", err);
+        if (err instanceof Error && err.message === 'Unauthorized') handleLogout();
       }
     };
-
-    fetchHabitsData();
+    loadData();
     return () => { active = false; };
   }, [token, handleLogout]);
 
   const handleAuthSubmit = async (mode: AuthMode, username: string, password: string) => {
     const endpoint = mode === 'login' ? '/auth/login' : '/auth/register';
     try {
-      const response = await fetch(`${API_BASE}${endpoint}`, {
+      const response = await fetch(`${API_BASE_URL}${endpoint}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username, password })
       });
-      
       const data = await response.json();
-      
       if (response.ok) {
         if (mode === 'login' && data.token) {
           localStorage.setItem('auth_token', data.token);
           setToken(data.token);
         } else {
-          alert("Operator profile active. Please proceed to login.");
+          alert("Success! Please proceed to login.");
         }
       } else {
-        alert(data.message || "Authentication error encountered.");
+        alert(data.message || "Authentication error.");
       }
-    } catch (err) {
-      console.error(err);
+    } catch (err: unknown) {
+      console.error("Network fault:", err);
       alert("Network server communication fault.");
     }
   };
@@ -100,37 +85,18 @@ export default function App() {
       ...prev,
       [habitKey]: prev[habitKey].map((val, idx) => idx === index ? !val : val)
     }));
-
     try {
-      const response = await fetch(`${API_BASE}/habits/toggle`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({ habitType: habitKey, dayNumber: index + 1 })
-      });
-
-      if (response.status === 429) {
-        alert("Action dropped. Connection limit hit.");
-        setHabitsData(prev => ({
-          ...prev,
-          [habitKey]: prev[habitKey].map((val, idx) => idx === index ? !val : val)
-        }));
-      }
-    } catch (err) {
-      console.error(err);
+      if (token) await toggleHabit(token, habitKey, index + 1);
+    } catch (err: unknown) {
+      console.error("Toggle error, reverting state:", err);
+      setHabitsData(prev => ({
+        ...prev,
+        [habitKey]: prev[habitKey].map((val, idx) => idx === index ? !val : val)
+      }));
     }
   }, [token]);
 
-  const getHabitColorClass = useCallback((habitKey: HabitKey, isCompleted: boolean): string => {
-    if (!isCompleted) return 'bg-transparent border border-zinc-800 text-zinc-500';
-    return 'bg-primary text-white border-primary shadow-sm';
-  }, []);
-
-  if (!token) {
-    return <AuthPortal handleAuthSubmit={handleAuthSubmit} />;
-  }
+  if (!token) return <AuthPortal handleAuthSubmit={handleAuthSubmit} />;
 
   return (
     <div className="d-flex flex-column w-100 min-vh-100 text-light" style={{ backgroundColor: '#09090b' }}>
@@ -138,7 +104,6 @@ export default function App() {
       <main className="flex-grow-1 p-4 md:p-5 overflow-auto">
         {currentView === 'dashboard' && <DashboardView habitsData={habitsData} />}
         {currentView === 'tracker-sheet' && <HabitSheetView habitsData={habitsData} toggleDay={toggleDay} />}
-        
         {currentView === '12-month' && <PlanView habitsData={habitsData} toggleDay={toggleDay} />}
         
         {!['dashboard', 'tracker-sheet', '12-month'].includes(currentView) && (
