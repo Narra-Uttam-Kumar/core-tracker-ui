@@ -1,4 +1,4 @@
- import type { HabitsData } from '../types';
+import type { HabitsData } from '../types';
 
 interface DashboardProps {
   readonly habitsData: HabitsData;
@@ -8,7 +8,8 @@ const MONTH_DAYS = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
 const MONTH_NAMES = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'];
 
 export default function DashboardView({ habitsData }: DashboardProps) {
-  const totalHabitsCount = Object.keys(habitsData).length;
+  const habitKeys = Object.keys(habitsData);
+  const totalHabitsCount = habitKeys.length;
   const maxPossiblePoints = totalHabitsCount * 365;
   
   // 1. Calculate Aggregate Totals
@@ -27,7 +28,7 @@ export default function DashboardView({ habitsData }: DashboardProps) {
     ? ((globalTotalCompletions / maxPossiblePoints) * 100).toFixed(1) 
     : "0.0";
 
-  // 2. Compute Monthly Ticks Timeline (FIXED: Pure functional slice replaces internal mutation)
+  // 2. Compute Monthly Ticks Timeline
   const monthlyCompletions = MONTH_DAYS.map((daysCount, mIdx) => {
     const currentStartOffset = MONTH_DAYS.slice(0, mIdx).reduce((sum, d) => sum + d, 0);
     let monthTotal = 0;
@@ -45,6 +46,11 @@ export default function DashboardView({ habitsData }: DashboardProps) {
   // 3. SVG Radial Circle Metric Setup
   const radius = 24;
   const circumference = 2 * Math.PI * radius;
+
+  // 4. Dynamic Bar Chart ViewBox Width (Scales cleanly with active habit count)
+  const barWidth = 24;
+  const barGap = 20;
+  const barChartWidth = Math.max(600, totalHabitsCount * (barWidth + barGap) + 80);
 
   return (
     <div className="container-fluid p-0 select-none font-sans">
@@ -104,17 +110,22 @@ export default function DashboardView({ habitsData }: DashboardProps) {
                 <line x1="30" y1="30" x2="580" y2="30" stroke="#1c1c21" strokeWidth="1" strokeDasharray="4 4" />
 
                 {(() => {
-                  const xSpacing = 50;
-                  const points = monthlyCompletions.map((val, idx) => {
-                    const x = 40 + idx * xSpacing;
+                  const xSpacing = 45;
+                  const xStart = 45;
+                  const pointsList = monthlyCompletions.map((val, idx) => {
+                    const x = xStart + idx * xSpacing;
                     const y = 160 - (val / maxMonthlyValue) * 120;
-                    return `${x},${y}`;
-                  }).join(' ');
+                    return { x, y, val };
+                  });
+
+                  const pointsString = pointsList.map(p => `${p.x},${p.y}`).join(' ');
+                  const firstX = pointsList[0]?.x ?? 45;
+                  const lastX = pointsList[pointsList.length - 1]?.x ?? 540;
 
                   return (
                     <>
                       <path
-                        d={`M 40,160 L ${points} L 540,160 Z`}
+                        d={`M ${firstX},160 L ${pointsString} L ${lastX},160 Z`}
                         fill="url(#lineAreaGradient)"
                         style={{ transition: 'all 0.5s ease' }}
                       />
@@ -122,27 +133,23 @@ export default function DashboardView({ habitsData }: DashboardProps) {
                         fill="none"
                         stroke="#6366f1"
                         strokeWidth="3"
-                        points={points}
+                        points={pointsString}
                         style={{ filter: 'drop-shadow(0px 4px 6px rgba(99,102,241,0.4))', transition: 'all 0.5s ease' }}
                       />
-                      {monthlyCompletions.map((val, idx) => {
-                        const x = 40 + idx * xSpacing;
-                        const y = 160 - (val / maxMonthlyValue) * 120;
-                        return (
-                          <g key={idx}>
-                            <circle cx={x} cy={y} r="4" fill="#ffffff" stroke="#4f46e5" strokeWidth="2.5" />
-                            <text x={x} y={y - 10} textAnchor="middle" fill="#818cf8" className="font-code fw-bold" style={{ fontSize: '10px' }}>
-                              {val}
-                            </text>
-                          </g>
-                        );
-                      })}
+                      {pointsList.map((p, idx) => (
+                        <g key={idx}>
+                          <circle cx={p.x} cy={p.y} r="4" fill="#ffffff" stroke="#4f46e5" strokeWidth="2.5" />
+                          <text x={p.x} y={p.y - 10} textAnchor="middle" fill="#818cf8" className="font-code fw-bold" style={{ fontSize: '10px' }}>
+                            {p.val}
+                          </text>
+                        </g>
+                      ))}
                     </>
                   );
                 })()}
 
                 {MONTH_NAMES.map((name, idx) => (
-                  <text key={name} x={40 + idx * 50} y="185" textAnchor="middle" fill="#71717a" className="font-code fw-bold" style={{ fontSize: '10px' }}>
+                  <text key={name} x={45 + idx * 45} y="185" textAnchor="middle" fill="#71717a" className="font-code fw-bold" style={{ fontSize: '10px' }}>
                     {name}
                   </text>
                 ))}
@@ -165,14 +172,13 @@ export default function DashboardView({ habitsData }: DashboardProps) {
               <i className="bi bi-bar-chart text-indigo-400 me-2"></i> [ BAR_CHART // HABITS_PROGRESS_COMPARISON ]
             </span>
             <div className="w-100 overflow-auto pt-2">
-              <svg viewBox="0 0 600 200" className="w-100" style={{ minWidth: '450px', overflow: 'visible' }}>
-                <line x1="20" y1="160" x2="580" y2="160" stroke="#1f1f24" strokeWidth="1" />
-                <line x1="20" y1="95" x2="580" y2="95" stroke="#1c1c21" strokeWidth="1" strokeDasharray="4 4" />
-                <line x1="20" y1="30" x2="580" y2="30" stroke="#1c1c21" strokeWidth="1" strokeDasharray="4 4" />
+              <svg viewBox={`0 0 ${barChartWidth} 200`} className="w-100" style={{ minWidth: '450px', overflow: 'visible' }}>
+                <line x1="20" y1="160" x2={barChartWidth - 20} y2="160" stroke="#1f1f24" strokeWidth="1" />
+                <line x1="20" y1="95" x2={barChartWidth - 20} y2="95" stroke="#1c1c21" strokeWidth="1" strokeDasharray="4 4" />
+                <line x1="20" y1="30" x2={barChartWidth - 20} y2="30" stroke="#1c1c21" strokeWidth="1" strokeDasharray="4 4" />
                 
                 {habitStats.map((stat, idx) => {
-                  const barWidth = 24;
-                  const xPos = idx * 46 + 35;
+                  const xPos = idx * (barWidth + barGap) + 35;
                   const currentBarHeight = Math.max((stat.percentage / 100) * 130, 4);
                   const yPos = 160 - currentBarHeight;
 
@@ -183,7 +189,7 @@ export default function DashboardView({ habitsData }: DashboardProps) {
                         {stat.completionsCount}
                       </text>
                       <text x={xPos + barWidth / 2} y="182" textAnchor="middle" fill="#71717a" className="font-code fw-bold text-uppercase" style={{ fontSize: '9px', letterSpacing: '0.2px' }}>
-                        {stat.key.substring(0, 4)}
+                        {stat.key.length > 5 ? `${stat.key.substring(0, 4)}..` : stat.key}
                       </text>
                     </g>
                   );
@@ -225,7 +231,7 @@ export default function DashboardView({ habitsData }: DashboardProps) {
                 </div>
 
                 <div className="position-relative d-flex align-items-center justify-content-center flex-shrink-0" style={{ width: '68px', height: '68px' }}>
-                  <svg width="68" height="68" viewBox="0 0 64 64" className="transform -rotate-90">
+                  <svg width="68" height="68" viewBox="0 0 64 64" style={{ transform: 'rotate(-90deg)' }}>
                     <circle cx="32" cy="32" r={radius} fill="transparent" stroke="#1c1c21" strokeWidth="4" />
                     <circle cx="32" cy="32" r={radius} fill="transparent" stroke={stat.completionsCount > 0 ? "#4f46e5" : "#27272a"} strokeWidth="4" strokeDasharray={circumference} strokeDashoffset={strokeDashoffset} strokeLinecap="round" style={{ transition: 'stroke-dashoffset 0.5s ease-in-out', filter: stat.completionsCount > 0 ? 'drop-shadow(0px 0px 5px rgba(99,102,241,0.5))' : 'none' }} />
                   </svg>

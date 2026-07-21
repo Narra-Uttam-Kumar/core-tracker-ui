@@ -10,36 +10,50 @@ export default function AuthPortal({ handleAuthSubmit }: AuthPortalProps) {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+ const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!username.trim() || !password.trim()) return;
 
     setIsLoading(true);
+    setErrorMessage(null);
+    setSuccessMessage(null);
+
     try {
       // 1. Perform the API call
       await handleAuthSubmit(authMode, username, password);
 
-      // 2. AUTOMATIC REDIRECT LOGIC:
-      // If the user was in 'register' mode and successful, switch to 'login' automatically
+      // 2. AUTOMATIC REDIRECT / VIEW SWITCH:
       if (authMode === 'register') {
-        setUsername(''); // Clear fields
+        setUsername(''); 
         setPassword('');
-        setAuthMode('login'); // Switch view automatically
+        setSuccessMessage('Account created successfully! Please sign in.');
+        setAuthMode('login'); 
       }
-    } catch (err) {
+    } catch (err: unknown) {
       console.error("Auth Error:", err);
-      // You could add an error state here to show an alert to the user
+      const message = err instanceof Error ? err.message : 'An error occurred during authentication.';
+      setErrorMessage(message);
     } finally {
       setIsLoading(false);
     }
   };
+
+  const handleToggleMode = () => {
+    setUsername('');
+    setPassword('');
+    setErrorMessage(null);
+    setSuccessMessage(null);
+    setAuthMode(prev => prev === 'login' ? 'register' : 'login');
+  };
+
   return (
     <div className="d-flex align-items-center justify-content-center min-vh-100 w-100 p-3" style={{ backgroundColor: '#09090b' }}>
       
       {/* ADVANCED UI LIBRARY STYLING ENGINE */}
       <style dangerouslySetInnerHTML={{__html: `
-        /* Premium Canvas Card */
         .lib-auth-card {
           background-color: #09090b !important;
           border: 1px solid #1e1e24 !important;
@@ -49,7 +63,6 @@ export default function AuthPortal({ handleAuthSubmit }: AuthPortalProps) {
           overflow: hidden;
         }
 
-        /* Ambient subtle backdrop glow */
         .lib-auth-card::before {
           content: '';
           position: absolute;
@@ -62,7 +75,6 @@ export default function AuthPortal({ handleAuthSubmit }: AuthPortalProps) {
           z-index: 0;
         }
 
-        /* High-Visibility Interactive Floating Inputs */
         .form-floating {
           position: relative;
           z-index: 1;
@@ -80,7 +92,6 @@ export default function AuthPortal({ handleAuthSubmit }: AuthPortalProps) {
           transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
         }
 
-        /* Fix browser autofill hiding typed text colors */
         .form-control:-webkit-autofill,
         .form-control:-webkit-autofill:hover,
         .form-control:-webkit-autofill:focus {
@@ -89,14 +100,12 @@ export default function AuthPortal({ handleAuthSubmit }: AuthPortalProps) {
           transition: background-color 5000s ease-in-out 0s !important;
         }
 
-        /* Focus interactive state rings */
         .form-floating > .form-control:focus {
           border-color: #6366f1 !important;
           box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.15) !important;
           background-color: #16161a !important;
         }
 
-        /* Floating Label Text Color States */
         .form-floating > label {
           color: #71717a !important;
           padding-left: 16px !important;
@@ -111,7 +120,6 @@ export default function AuthPortal({ handleAuthSubmit }: AuthPortalProps) {
           font-weight: 600 !important;
         }
 
-        /* Crisp interactive button mechanics */
         .lib-btn-prime {
           background-color: #ffffff !important;
           color: #09090b !important;
@@ -136,9 +144,6 @@ export default function AuthPortal({ handleAuthSubmit }: AuthPortalProps) {
         
         {/* CENTERED UI HEADER */}
         <div className="text-center mb-4 position-relative" style={{ zIndex: 1 }}>
-          <span className="font-code text-indigo-400 fw-bold d-inline-block mb-2" style={{ fontSize: '11px', letterSpacing: '1.5px' }}>
-            
-          </span>
           <h2 className="fs-2 fw-extrabold text-white tracking-tight mb-2 font-heading">
             {authMode === 'login' ? 'Sign in to Matrix' : 'Join the Matrix'}
           </h2>
@@ -147,10 +152,22 @@ export default function AuthPortal({ handleAuthSubmit }: AuthPortalProps) {
           </p>
         </div>
 
-        {/* FLOATING FIELD LIBRARY FORM */}
-        <form onSubmit={handleSubmit} className="d-flex flex-column gap-3 mt-3">
+        {/* FEEDBACK NOTIFICATIONS */}
+        {errorMessage && (
+          <div className="alert alert-danger border-0 py-2 px-3 mb-3 text-center" style={{ backgroundColor: '#271214', color: '#f87171', fontSize: '13px', borderRadius: '10px' }}>
+            {errorMessage}
+          </div>
+        )}
+
+        {successMessage && (
+          <div className="alert alert-success border-0 py-2 px-3 mb-3 text-center" style={{ backgroundColor: '#0f291e', color: '#4ade80', fontSize: '13px', borderRadius: '10px' }}>
+            {successMessage}
+          </div>
+        )}
+
+        {/* FLOATING FIELD FORM */}
+        <form onSubmit={handleSubmit} className="d-flex flex-column gap-3 mt-1">
           
-          {/* USERNAME INPUT CONTAINER */}
           <div className="form-floating">
             <input 
               type="text" 
@@ -166,7 +183,6 @@ export default function AuthPortal({ handleAuthSubmit }: AuthPortalProps) {
             <label htmlFor="floatingUsername">Username</label>
           </div>
 
-          {/* PASSWORD INPUT CONTAINER */}
           <div className="form-floating">
             <input 
               type="password" 
@@ -197,11 +213,7 @@ export default function AuthPortal({ handleAuthSubmit }: AuthPortalProps) {
         {/* DYNAMIC VIEW ROUTER ACTION */}
         <div className="text-center mt-4 pt-3 position-relative" style={{ borderTop: '1px solid #18181b', zIndex: 1 }}>
           <button 
-            onClick={() => {
-              setUsername('');
-              setPassword('');
-              setAuthMode(prev => prev === 'login' ? 'register' : 'login');
-            }} 
+            onClick={handleToggleMode} 
             className="btn p-0 border-0 text-zinc-500 bg-transparent transition-all" 
             style={{ fontSize: '13.5px' }} 
             disabled={isLoading}

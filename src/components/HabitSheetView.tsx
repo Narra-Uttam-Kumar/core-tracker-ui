@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import type { HabitsData, HabitKey } from '../types';
 import { isPastDate, getDayStyles } from '../utils/dateUtils';
 
@@ -31,7 +31,13 @@ interface HabitSheetViewProps {
 
 export default function HabitSheetView({ habitsData, toggleDay }: HabitSheetViewProps): React.ReactNode {
   const [activeMonthIdx, setActiveMonthIdx] = useState<number>(6);
-  const start = MONTH_DETAILS.slice(0, activeMonthIdx).reduce((a, b) => a + b.daysCount, 0);
+
+  // Pure start offset memoization
+  const start = useMemo(() => {
+    return MONTH_DETAILS.slice(0, activeMonthIdx).reduce((acc, m) => acc + m.daysCount, 0);
+  }, [activeMonthIdx]);
+
+  const currentMonthDays = MONTH_DETAILS[activeMonthIdx].daysCount;
 
   return (
     <div className="container-fluid p-0 w-100 overflow-hidden">
@@ -58,7 +64,30 @@ export default function HabitSheetView({ habitsData, toggleDay }: HabitSheetView
 
       {/* Main Grid Wrapper */}
       <div className="bg-zinc-950 p-2 rounded border border-zinc-900 w-100 overflow-x-auto">
-        <div style={{ minWidth: '700px' }}> {/* Enforces consistent column flow down to mobile viewports */}
+        <div style={{ minWidth: '700px' }}>
+          
+          {/* Header Row: Days of the Month */}
+          <div className="d-flex align-items-center border-bottom border-zinc-900 pb-2 mb-1 w-100">
+            <div 
+              className="ps-2 text-start text-zinc-500 font-code fw-bold" 
+              style={{ width: '140px', fontSize: '12px', flexShrink: 0 }}
+            >
+              HABIT
+            </div>
+            <div className="d-flex gap-1 w-100 flex-fill">
+              {Array.from({ length: currentMonthDays }).map((_, i) => (
+                <div 
+                  key={i} 
+                  className="text-center font-code text-zinc-500 fw-bold" 
+                  style={{ flex: 1, fontSize: '10px', minWidth: '20px' }}
+                >
+                  {i + 1}
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Habit Rows */}
           {HABIT_CONFIG.map((habit) => (
             <div key={habit.key} className="d-flex align-items-center border-bottom border-zinc-900 py-2 w-100" style={{ minHeight: '45px' }}>
               
@@ -77,23 +106,25 @@ export default function HabitSheetView({ habitsData, toggleDay }: HabitSheetView
               </div>
               
               <div className="d-flex gap-1 w-100 flex-fill">
-                {Array.from({ length: MONTH_DETAILS[activeMonthIdx].daysCount }).map((_, i) => {
+                {Array.from({ length: currentMonthDays }).map((_, i) => {
                   const idx = start + i;
                   const habitList = habitsData[habit.key] || [];
-                  const done = !!habitList[idx];
+                  const done = Boolean(habitList[idx]);
                   const past = isPastDate(idx);
                   
                   return (
                     <button 
                       key={idx} 
-                      onClick={() => !past && toggleDay(habit.key, idx)} 
+                      onClick={() => toggleDay(habit.key, idx)}
+                      disabled={past}
                       style={{ 
+                        ...getDayStyles(done, past),
                         flex: 1, 
                         height: '32px', 
                         fontSize: '10px', 
-                        ...getDayStyles(done, past),
                         border: 'none',
                         borderRadius: '4px',
+                        cursor: past ? 'not-allowed' : 'pointer',
                         transition: 'all 0.15s',
                         minWidth: '20px'
                       }}

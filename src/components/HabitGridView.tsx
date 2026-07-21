@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import type { HabitKey } from '../types';
 import { isPastDate, getDayStyles } from '../utils/dateUtils';
 
@@ -13,10 +13,18 @@ const DAYS_PER_MONTH = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
 
 export default function HabitGridView({ 
   currentView, 
-  habitData, 
+  habitData = [], 
   toggleDay, 
   months 
 }: GridProps): React.ReactNode {
+  
+  // FIX 2: Pure functional calculation without mutating outer scope variables
+  const monthOffsets = useMemo(() => {
+    return DAYS_PER_MONTH.map((_, idx) => 
+      DAYS_PER_MONTH.slice(0, idx).reduce((sum, days) => sum + days, 0)
+    );
+  }, []);
+
   return (
     <div className="custom-card p-3 w-100">
       <div className="border-bottom border-zinc-800 pb-3 mb-4">
@@ -25,7 +33,8 @@ export default function HabitGridView({
       
       <div className="row g-3 w-100 m-0">
         {months.map((m, mIdx) => {
-          const currentStartOffset = DAYS_PER_MONTH.slice(0, mIdx).reduce((sum, d) => sum + d, 0);
+          const currentStartOffset = monthOffsets[mIdx];
+          
           return (
             <div key={m} className="col-12 col-md-6 col-lg-4 p-2">
               <div className="card p-3 border-zinc-800" style={{ backgroundColor: '#111114' }}>
@@ -37,22 +46,25 @@ export default function HabitGridView({
                   {m}
                 </span>
                 
-                <div className="d-flex flex-wrap gap-1.5 justify-content-start">
+                <div className="d-flex flex-wrap justify-content-start" style={{ gap: '6px' }}>
                   {Array.from({ length: DAYS_PER_MONTH[mIdx] }).map((_, dIdx) => {
                     const idx = currentStartOffset + dIdx;
-                    const isChecked = habitData[idx];
+                    const isChecked = Boolean(habitData[idx]);
                     const isPast = isPastDate(idx);
                     
                     return (
                       <button 
                         key={idx} 
-                        onClick={() => !isPast && toggleDay(currentView, idx)} 
+                        onClick={() => toggleDay(currentView, idx)}
+                        disabled={isPast} 
                         className="btn p-0 rounded font-code fw-bold text-center" 
                         style={{ 
+                          // FIX 1: Spread getDayStyles FIRST so explicit overrides take priority without ts(2783)
+                          ...getDayStyles(isChecked, isPast),
                           width: '28px',
                           height: '28px',
                           fontSize: '10px',
-                          ...getDayStyles(isChecked, isPast),
+                          cursor: isPast ? 'not-allowed' : 'pointer',
                           transition: 'all 0.15s'
                         }}
                       >
