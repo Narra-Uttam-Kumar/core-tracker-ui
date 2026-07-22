@@ -79,7 +79,7 @@ export default function Header({ currentView, setCurrentView, handleLogout, user
 
             {/* Identifier Label */}
             <span className="text-zinc-500 font-monospace" style={{ fontSize: '10px' }}>
-              ID:
+              
             </span>
 
             {/* Clean White/Ice-Blue Username */}
