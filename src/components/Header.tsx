@@ -56,41 +56,36 @@ export default function Header({ currentView, setCurrentView, handleLogout, user
         {/* MIDDLE: Responsive Username Badge */}
         {username && (
           <div 
-            className="font-code d-flex align-items-center gap-2 px-2 px-md-3 py-1 rounded-1 position-absolute start-50 translate-middle-x"
+            className="font-code d-flex align-items-center gap-2 px-3 py-1 rounded-2 position-absolute start-50 translate-middle-x"
             style={{ 
-              background: 'linear-gradient(90deg, rgba(15,23,42,0.95) 0%, rgba(30,27,75,0.95) 100%)',
-              borderLeft: '3px solid #06b6d4', // Bright cyan accent border on left
-              borderTop: '1px solid rgba(6, 182, 212, 0.3)',
-              borderRight: '1px solid rgba(168, 85, 247, 0.3)',
-              borderBottom: '1px solid rgba(168, 85, 247, 0.3)',
-              boxShadow: '0 0 15px rgba(6, 182, 212, 0.2)',
+              backgroundColor: '#111115', // Matches dark navbar background
+              border: '1px solid rgba(59, 130, 246, 0.3)', // Subtle blue border
+              boxShadow: '0 0 12px rgba(37, 99, 235, 0.2)', // Matches JUL button glow
               fontSize: '11px',
               zIndex: 1,
               letterSpacing: '0.5px'
             }}
           >
-            {/* Live Status Pulse Indicator */}
-            <span className="position-relative d-flex align-items-center justify-content-center" style={{ width: '8px', height: '8px' }}>
-              <span 
-                className="position-absolute rounded-circle bg-info opacity-75" 
-                style={{ width: '100%', height: '100%', animation: 'ping 1.5s cubic-bezier(0, 0, 0.2, 1) infinite' }}
-              ></span>
-              <span className="rounded-circle bg-info d-inline-block" style={{ width: '6px', height: '6px', boxShadow: '0 0 6px #06b6d4' }}></span>
-            </span>
+            {/* Glowing Electric Blue Status Dot */}
+            <span 
+              className="rounded-circle d-inline-block" 
+              style={{ 
+                width: '7px', 
+                height: '7px',
+                backgroundColor: '#3b82f6',
+                boxShadow: '0 0 8px #3b82f6' 
+              }}
+            ></span>
 
-            <span className="text-zinc-500 fw-bold d-none d-sm-inline" style={{ fontSize: '10px' }}>
+            {/* Identifier Label */}
+            <span className="text-zinc-500 font-monospace" style={{ fontSize: '10px' }}>
               ID:
             </span>
 
+            {/* Clean White/Ice-Blue Username */}
             <span 
-              className="fw-extrabold text-truncate" 
-              style={{ 
-                background: 'linear-gradient(135deg, #38bdf8 0%, #c084fc 100%)',
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent',
-                maxWidth: '110px',
-                textTransform: 'uppercase'
-              }}
+              className="fw-bold font-monospace text-truncate" 
+              style={{ color: '#f4f4f5', maxWidth: '100px', textTransform: 'uppercase' }}
               title={username}
             >
               {username}
