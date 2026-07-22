@@ -28,14 +28,13 @@ const INITIAL_HABITS_STATE = (): HabitsData => ({
 
 export default function App() {
   const [token, setToken] = useState<string | null>(localStorage.getItem('auth_token'));
-  // 1. Store username state (retrieved from localStorage on initial render)
   const [username, setUsername] = useState<string | null>(localStorage.getItem('auth_username'));
   const [currentView, setCurrentView] = useState<ViewType>('tracker-sheet'); 
   const [habitsData, setHabitsData] = useState<HabitsData>(INITIAL_HABITS_STATE());
 
   const handleLogout = useCallback(() => {
     localStorage.removeItem('auth_token');
-    localStorage.removeItem('auth_username'); // Clear username on logout
+    localStorage.removeItem('auth_username');
     setToken(null);
     setUsername(null);
     setHabitsData(INITIAL_HABITS_STATE());
@@ -81,7 +80,6 @@ export default function App() {
       const data = await response.json();
       if (mode === 'login' && data.token) {
         localStorage.setItem('auth_token', data.token);
-        // 2. Save username returned from backend or from form input
         const loggedInUser = data.username || usernameInput;
         localStorage.setItem('auth_username', loggedInUser);
         
@@ -129,12 +127,11 @@ export default function App() {
 
   return (
     <div className="d-flex flex-column w-100 min-vh-100 text-light" style={{ backgroundColor: '#09090b' }}>
-      {/* 3. Pass username prop down to Header component */}
       <Header 
         currentView={currentView} 
         setCurrentView={setCurrentView} 
         handleLogout={handleLogout} 
-        username={username undefined}
+        username={username || undefined}
       />
       
       <main className="flex-grow-1 p-4 md:p-5 overflow-auto">
