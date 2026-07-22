@@ -94,32 +94,42 @@ export default function App() {
     }
   };
 
-  const toggleDay = useCallback(async (habitKey: HabitKey, index: number) => {
-    // Optimistic UI Update
+const toggleDay = useCallback(
+  async (habitKey: HabitKey, index: number) => {
+
+    // optimistic update
     setHabitsData(prev => ({
       ...prev,
-      [habitKey]: prev[habitKey].map((val, idx) => idx === index ? !val : val)
+      [habitKey]: prev[habitKey].map((value, i) =>
+        i === index ? !value : value
+      ),
     }));
 
     try {
-      if (token) {
-        await toggleHabit(token, habitKey, index);
-      }
-    } catch (err: unknown) {
-      console.error("Toggle habit failed:", err);
+      if (!token) return;
 
-      if (err instanceof Error && err.message === 'Unauthorized') {
+      await toggleHabit(token, habitKey, index);
+
+    } catch (err) {
+
+      console.error("Toggle failed", err);
+
+      if (err instanceof Error && err.message === "Unauthorized") {
         handleLogout();
         return;
       }
 
-      // Revert state if sync failed
+      // rollback
       setHabitsData(prev => ({
         ...prev,
-        [habitKey]: prev[habitKey].map((val, idx) => idx === index ? !val : val)
+        [habitKey]: prev[habitKey].map((value, i) =>
+          i === index ? !value : value
+        ),
       }));
     }
-  }, [token, handleLogout]);
+  },
+  [token, handleLogout]
+);
 
   if (!token) {
     return <AuthPortal handleAuthSubmit={handleAuthSubmit} />;
