@@ -3,7 +3,7 @@ import type { HabitsData, HabitKey } from '../types';
 import { isPastDate, getDayStyles } from '../utils/dateUtils';
 
 const HABIT_CONFIG: { key: HabitKey; name: string; icon: string }[] = [
-  { key: 'wakeup', name: 'Wake', icon: 'bi-alarm' },
+  { key: 'wakeup', name: 'Wake Up', icon: 'bi-alarm' },
   { key: 'nosnooze', name: 'NoSnooze', icon: 'bi-x-circle' },
   { key: 'water', name: 'Water', icon: 'bi-droplet' },
   { key: 'gym', name: 'Gym', icon: 'bi-lightning' },
@@ -11,7 +11,7 @@ const HABIT_CONFIG: { key: HabitKey; name: string; icon: string }[] = [
   { key: 'read', name: 'Read', icon: 'bi-book' },
   { key: 'meditation', name: 'Meditate', icon: 'bi-moon-stars' },
   { key: 'study', name: 'Study', icon: 'bi-mortarboard' },
-  { key: 'skincare', name: 'Skin', icon: 'bi-sparkles' },
+  { key: 'skincare', name: 'SkinCare', icon: 'bi-sparkles' },
   { key: 'socialmedia', name: 'Social', icon: 'bi-phone-mute' },
   { key: 'noalcohol', name: 'NoAlc', icon: 'bi-ban' },
   { key: 'expenses', name: 'Fin', icon: 'bi-cash-coin' },
@@ -32,7 +32,6 @@ interface HabitSheetViewProps {
 export default function HabitSheetView({ habitsData, toggleDay }: HabitSheetViewProps): React.ReactNode {
   const [activeMonthIdx, setActiveMonthIdx] = useState<number>(6);
 
-  // Pure start offset memoization
   const start = useMemo(() => {
     return MONTH_DETAILS.slice(0, activeMonthIdx).reduce((acc, m) => acc + m.daysCount, 0);
   }, [activeMonthIdx]);
@@ -68,9 +67,18 @@ export default function HabitSheetView({ habitsData, toggleDay }: HabitSheetView
           
           {/* Header Row: Days of the Month */}
           <div className="d-flex align-items-center border-bottom border-zinc-900 pb-2 mb-1 w-100">
+            {/* Sticky Header Label */}
             <div 
               className="ps-2 text-start text-zinc-500 font-code fw-bold" 
-              style={{ width: '140px', fontSize: '12px', flexShrink: 0 }}
+              style={{ 
+                width: '140px', 
+                fontSize: '12px', 
+                flexShrink: 0,
+                position: 'sticky',
+                left: 0,
+                backgroundColor: '#09090b', // Matches bg-zinc-950
+                zIndex: 10
+              }}
             >
               HABIT
             </div>
@@ -91,6 +99,7 @@ export default function HabitSheetView({ habitsData, toggleDay }: HabitSheetView
           {HABIT_CONFIG.map((habit) => (
             <div key={habit.key} className="d-flex align-items-center border-bottom border-zinc-900 py-2 w-100" style={{ minHeight: '45px' }}>
               
+              {/* Sticky Habit Label */}
               <div 
                 className="ps-2 text-start" 
                 style={{ 
@@ -99,7 +108,11 @@ export default function HabitSheetView({ habitsData, toggleDay }: HabitSheetView
                   fontWeight: '700', 
                   color: '#f4f4f5', 
                   letterSpacing: '0.5px',
-                  flexShrink: 0 
+                  flexShrink: 0,
+                  position: 'sticky',
+                  left: 0,
+                  backgroundColor: '#09090b', // Matches bg-zinc-950
+                  zIndex: 5
                 }}
               >
                 {habit.name}
