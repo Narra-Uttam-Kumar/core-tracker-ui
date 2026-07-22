@@ -56,24 +56,41 @@ export default function Header({ currentView, setCurrentView, handleLogout, user
         {/* MIDDLE: Responsive Username Badge */}
         {username && (
           <div 
-            className="font-code d-flex align-items-center gap-1 gap-md-2 px-2 px-md-3 py-1 rounded-2 position-absolute start-50 translate-middle-x"
+            className="font-code d-flex align-items-center gap-2 px-2 px-md-3 py-1 rounded-1 position-absolute start-50 translate-middle-x"
             style={{ 
-              backgroundColor: 'rgba(9, 9, 11, 0.85)',
-              border: '1px solid #10b981', 
-              boxShadow: '0 0 10px rgba(16, 185, 129, 0.25)',
+              background: 'linear-gradient(90deg, rgba(15,23,42,0.95) 0%, rgba(30,27,75,0.95) 100%)',
+              borderLeft: '3px solid #06b6d4', // Bright cyan accent border on left
+              borderTop: '1px solid rgba(6, 182, 212, 0.3)',
+              borderRight: '1px solid rgba(168, 85, 247, 0.3)',
+              borderBottom: '1px solid rgba(168, 85, 247, 0.3)',
+              boxShadow: '0 0 15px rgba(6, 182, 212, 0.2)',
               fontSize: '11px',
               zIndex: 1,
-              maxWidth: '45%',
-              overflow: 'hidden',
-              whiteSpace: 'nowrap',
-              textOverflow: 'ellipsis'
+              letterSpacing: '0.5px'
             }}
           >
-            <span className="text-success fw-bold">&gt;</span>
-            <span className="text-zinc-400 d-none d-sm-inline" style={{ fontSize: '11px' }}>USER:</span>
+            {/* Live Status Pulse Indicator */}
+            <span className="position-relative d-flex align-items-center justify-content-center" style={{ width: '8px', height: '8px' }}>
+              <span 
+                className="position-absolute rounded-circle bg-info opacity-75" 
+                style={{ width: '100%', height: '100%', animation: 'ping 1.5s cubic-bezier(0, 0, 0.2, 1) infinite' }}
+              ></span>
+              <span className="rounded-circle bg-info d-inline-block" style={{ width: '6px', height: '6px', boxShadow: '0 0 6px #06b6d4' }}></span>
+            </span>
+
+            <span className="text-zinc-500 fw-bold d-none d-sm-inline" style={{ fontSize: '10px' }}>
+              ID:
+            </span>
+
             <span 
-              className="fw-bold text-truncate" 
-              style={{ color: '#34d399', maxWidth: '90px' }}
+              className="fw-extrabold text-truncate" 
+              style={{ 
+                background: 'linear-gradient(135deg, #38bdf8 0%, #c084fc 100%)',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                maxWidth: '110px',
+                textTransform: 'uppercase'
+              }}
               title={username}
             >
               {username}
