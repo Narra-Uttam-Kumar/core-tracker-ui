@@ -4,17 +4,17 @@ import { isPastDate, getDayStyles } from '../utils/dateUtils';
 
 const HABIT_CONFIG: { key: HabitKey; name: string; icon: string }[] = [
   { key: 'wakeup', name: 'Wake Up', icon: 'bi-alarm' },
-  { key: 'nosnooze', name: 'NoSnooze', icon: 'bi-x-circle' },
+  { key: 'nosnooze', name: 'No Snooze', icon: 'bi-x-circle' },
   { key: 'water', name: 'Water', icon: 'bi-droplet' },
   { key: 'gym', name: 'Gym', icon: 'bi-lightning' },
-  { key: 'stretching', name: 'Stretch', icon: 'bi-body-text' },
+  { key: 'stretching', name: 'Stretching', icon: 'bi-body-text' },
   { key: 'read', name: 'Read', icon: 'bi-book' },
-  { key: 'meditation', name: 'Meditate', icon: 'bi-moon-stars' },
+  { key: 'meditation', name: 'Meditation', icon: 'bi-moon-stars' },
   { key: 'study', name: 'Study', icon: 'bi-mortarboard' },
   { key: 'skincare', name: 'SkinCare', icon: 'bi-sparkles' },
   { key: 'socialmedia', name: 'Social', icon: 'bi-phone-mute' },
-  { key: 'noalcohol', name: 'NoAlc', icon: 'bi-ban' },
-  { key: 'expenses', name: 'Fin', icon: 'bi-cash-coin' },
+  { key: 'noalcohol', name: 'NoAlcohol', icon: 'bi-ban' },
+  { key: 'expenses', name: 'Finance ', icon: 'bi-cash-coin' },
 ];
 
 const MONTH_DETAILS = [
