@@ -45,33 +45,50 @@ export default function Header({ currentView, setCurrentView, handleLogout, user
       <div className="d-flex align-items-center justify-content-between w-100 position-relative">
         
         {/* LEFT: Logo */}
-        <span className="navbar-brand fw-extrabold font-heading text-white m-0 d-flex align-items-center gap-2" style={{ fontSize: '18px', letterSpacing: '0.8px', cursor: 'pointer' }} onClick={() => setCurrentView('tracker-sheet')}>
-          <i className="bi bi-activity text-indigo-400"></i> CORE<span className="text-zinc-500">.MATRIX</span>
+        <span 
+          className="navbar-brand fw-extrabold font-heading text-white m-0 d-flex align-items-center gap-2" 
+          style={{ fontSize: '18px', letterSpacing: '0.8px', cursor: 'pointer' }} 
+          onClick={() => setCurrentView('tracker-sheet')}
+        >
+          <i className="bi bi-activity text-indigo-400"></i> CORE<span className="text-zinc-500 d-none d-sm-inline">.MATRIX</span>
         </span>
 
-        {/* MIDDLE: Perfectly Centered Username Badge */}
+        {/* MIDDLE: Responsive Username Badge */}
         {username && (
           <div 
-            className="font-code d-none d-md-flex align-items-center gap-2 px-3 py-1 rounded-2 position-absolute start-50 translate-middle-x"
+            className="font-code d-flex align-items-center gap-1 gap-md-2 px-2 px-md-3 py-1 rounded-2 position-absolute start-50 translate-middle-x"
             style={{ 
-              backgroundColor: 'rgba(9, 9, 11, 0.8)',
+              backgroundColor: 'rgba(9, 9, 11, 0.85)',
               border: '1px solid #10b981', 
               boxShadow: '0 0 10px rgba(16, 185, 129, 0.25)',
-              fontSize: '12px',
-              zIndex: 1
+              fontSize: '11px',
+              zIndex: 1,
+              maxWidth: '45%',
+              overflow: 'hidden',
+              whiteSpace: 'nowrap',
+              textOverflow: 'ellipsis'
             }}
           >
             <span className="text-success fw-bold">&gt;</span>
-            <span className="text-zinc-400" style={{ fontSize: '11px' }}>USER:</span>
-            <span className="fw-bold" style={{ color: '#34d399' }}>
+            <span className="text-zinc-400 d-none d-sm-inline" style={{ fontSize: '11px' }}>USER:</span>
+            <span 
+              className="fw-bold text-truncate" 
+              style={{ color: '#34d399', maxWidth: '90px' }}
+              title={username}
+            >
               {username}
             </span>
           </div>
         )}
 
         {/* RIGHT: Logout Button */}
-        <button onClick={handleLogout} className="btn btn-sm btn-dark font-code border-0 px-3 py-2 text-danger bg-opacity-50 premium-nav-btn" style={{ fontSize: '12px', backgroundColor: '#1a1a1e', borderRadius: '6px' }}>
-          <i className="bi bi-box-arrow-right me-1"></i> LOGOUT
+        <button 
+          onClick={handleLogout} 
+          className="btn btn-sm btn-dark font-code border-0 px-2 px-md-3 py-2 text-danger bg-opacity-50 premium-nav-btn" 
+          style={{ fontSize: '12px', backgroundColor: '#1a1a1e', borderRadius: '6px' }}
+        >
+          <i className="bi bi-box-arrow-right me-1"></i>
+          <span className="d-none d-sm-inline">LOGOUT</span>
         </button>
       </div>
 
