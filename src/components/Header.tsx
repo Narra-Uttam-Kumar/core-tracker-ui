@@ -4,7 +4,7 @@ interface HeaderProps {
   readonly currentView: ViewType;
   readonly setCurrentView: (view: ViewType) => void;
   readonly handleLogout: () => void;
-  readonly username?: string; // 1. Added optional username prop
+  readonly username?: string;
 }
 
 const NAV_HABITS: { key: HabitKey; name: string }[] = [
@@ -49,20 +49,21 @@ export default function Header({ currentView, setCurrentView, handleLogout, user
           <i className="bi bi-activity text-indigo-400"></i> CORE<span className="text-zinc-500">.MATRIX</span>
         </span>
 
-        {/* MIDDLE: Centered Logged-in Username Badge */}
+        {/* MIDDLE: Perfectly Centered Username Badge */}
         {username && (
           <div 
-            className="font-code d-flex align-items-center gap-2 px-3 py-1 rounded-2"
+            className="font-code d-none d-md-flex align-items-center gap-2 px-3 py-1 rounded-2 position-absolute start-50 translate-middle-x"
             style={{ 
               backgroundColor: 'rgba(9, 9, 11, 0.8)',
-              border: '1px solid #10b981', // Matrix green border
+              border: '1px solid #10b981', 
               boxShadow: '0 0 10px rgba(16, 185, 129, 0.25)',
-              fontSize: '12px'
+              fontSize: '12px',
+              zIndex: 1
             }}
           >
             <span className="text-success fw-bold">&gt;</span>
             <span className="text-zinc-400" style={{ fontSize: '11px' }}>USER:</span>
-            <span className="fw-bold text-emerald-400 text-white" style={{ color: '#34d399' }}>
+            <span className="fw-bold" style={{ color: '#34d399' }}>
               {username}
             </span>
           </div>
