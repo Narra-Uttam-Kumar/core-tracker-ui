@@ -52,17 +52,19 @@ export default function Header({ currentView, setCurrentView, handleLogout, user
         {/* MIDDLE: Centered Logged-in Username Badge */}
         {username && (
           <div 
-            className="font-code text-zinc-300 d-flex align-items-center gap-2 px-3 py-1 rounded-pill"
+            className="font-code d-flex align-items-center gap-2 px-3 py-1 rounded-2"
             style={{ 
-              backgroundColor: 'rgba(255, 255, 255, 0.04)',
-              border: '1px solid rgba(255, 255, 255, 0.08)',
-              fontSize: '13px',
-              letterSpacing: '0.5px'
+              backgroundColor: 'rgba(9, 9, 11, 0.8)',
+              border: '1px solid #10b981', // Matrix green border
+              boxShadow: '0 0 10px rgba(16, 185, 129, 0.25)',
+              fontSize: '12px'
             }}
           >
-            <span className="rounded-circle bg-success d-inline-block" style={{ width: '7px', height: '7px' }}></span>
-            <span className="text-zinc-400">USER //</span>
-            <span className="fw-bold text-white">{username}</span>
+            <span className="text-success fw-bold">&gt;</span>
+            <span className="text-zinc-400" style={{ fontSize: '11px' }}>USER:</span>
+            <span className="fw-bold text-emerald-400 text-white" style={{ color: '#34d399' }}>
+              {username}
+            </span>
           </div>
         )}
 

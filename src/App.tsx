@@ -134,7 +134,7 @@ export default function App() {
         currentView={currentView} 
         setCurrentView={setCurrentView} 
         handleLogout={handleLogout} 
-        username={username || undefined}
+        username={username undefined}
       />
       
       <main className="flex-grow-1 p-4 md:p-5 overflow-auto">
